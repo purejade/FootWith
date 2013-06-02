@@ -343,7 +343,9 @@ public class Mediator {
             if (!Util.isEmpty(IDs)){
                 record.setSiteIDs(getSiteNames(IDs));
             }
-            records.put(Util.string2Json(record.getTimestamp().toString()),JSONHelper.getJSONHelperInstance().convertToString(convertRecordToMap(record)));
+            HashMap<String,String> rs=convertRecordToMap(record);
+            rs.put("siteGPS",JSONHelper.getJSONHelperInstance().convertToString(getSitePos(IDs)));
+            records.put(Util.string2Json(record.getTimestamp().toString()),JSONHelper.getJSONHelperInstance().convertToString(rs));
         }
 
         return records;
@@ -593,6 +595,8 @@ public class Mediator {
         String brief = "";
         String picture = String.valueOf(-1);
         siteID = site_map.get("siteID");
+        int latitude=0;
+        int longitude=0;
         if(siteID == null || Util.isEmpty(siteID)) {
             siteID = String.valueOf(-1);
         }
@@ -616,7 +620,13 @@ public class Mediator {
         if(picture == null || Util.isEmpty(picture)) {
             picture = String.valueOf(-1);
         }
-        return new Site(Integer.valueOf(siteID), siteName, Integer.valueOf(rate), location, brief, Integer.valueOf(picture));
+        if (site_map.containsKey("latitude")){
+            latitude=Integer.valueOf(site_map.get("latitude"));
+        }
+        if (site_map.containsKey("longitude")){
+            longitude=Integer.valueOf(site_map.get("longitude"));
+        }
+        return new Site(Integer.valueOf(siteID), siteName, Integer.valueOf(rate), location, brief, Integer.valueOf(picture),latitude,longitude);
 
     }
     private static  HashMap<String,String> convertSiteToMap(Site site){
@@ -627,6 +637,8 @@ public class Mediator {
         site_map.put("location", site.getLocation());
         site_map.put("brief", site.getBrief());
         site_map.put("picture", String.valueOf(site.getPicture()));
+        site_map.put("latitude",String.valueOf(site.getLatitude()));
+        site_map.put("longitude",String.valueOf(site.getLongitude()));
         return site_map;
     }
     public static Vector<String> getAllSite() throws SQLException {
@@ -702,6 +714,8 @@ public class Mediator {
         boolean sex=true;
         String like="";
         String marks="";
+        String sinaWeiboToken="";
+        String sinaExpiresIN="";
 
         userID = user_map.get("userID");
         if(userID == null || Util.isEmpty(userID)){
@@ -739,11 +753,18 @@ public class Mediator {
         if (Util.isEmpty(marks)){
             marks="";
         }
+        if (!Util.isEmpty(user_map.get("sinaWeiboToken"))){
+            sinaWeiboToken=user_map.get("sinaWeiboTOken");
+        }
+        if (!Util.isEmpty(user_map.get("sinaExpiresIN"))){
+            sinaExpiresIN=user_map.get("sinaExpiresIN");
+        }
         String tmp=user_map.get("sex");
         if (!Util.isEmpty(tmp) && tmp.equals("female")){
             sex=false;
         }
-        return new User(Integer.valueOf(userID), userName, nickName, passwd, Integer.valueOf(otherInfo), plans, records,sex,like,marks);
+        return new User(Integer.valueOf(userID), userName, nickName, passwd,
+                Integer.valueOf(otherInfo), plans, records,sex,like,marks,sinaWeiboToken,sinaExpiresIN);
 
     }
     private static HashMap<String,String>  convertUserToMap(User user){
@@ -757,6 +778,8 @@ public class Mediator {
         if (!Util.isEmpty(user.getRecords())) user_map.put("records", user.getRecords());
         if (!Util.isEmpty(user.getLike())) user_map.put("like",user.getLike());
         if (!Util.isEmpty(user.getMarks())) user_map.put("marks",user.getMarks());
+        if (!Util.isEmpty(user.getSinaWeiboToken())) user_map.put("sinaWeiboToken",user.getSinaWeiboToken());
+        if (!Util.isEmpty(user.getSinaExpiresIN())) user_map.put("sinaExpiresIN",user.getSinaExpiresIN());
         if (user.getSex()){
             user_map.put("sex","male");
         }else{
@@ -810,6 +833,16 @@ public class Mediator {
         return NameVector.toString();
     }
 
+    public static HashMap<String,String> getSitePos(String IDs) throws JSONException, SQLException {
+        HashMap<String,String> rs=new HashMap<String, String>();
+        Vector<Integer> IDVector=JSONHelper.getJSONHelperInstance().convertToArray(IDs);
+        for  (int i=0;i<IDVector.size();i++){
+            HashMap<String,String> tmp=SiteManager.getSitePos(IDVector.get(i));
+            rs.put(tmp.get("siteName"),tmp.get("latitude")+":"+tmp.get("longitude"));
+        }
+        return rs;
+    }
+
     public static Journal convertMapToJournal(HashMap<String,String> journalMap){
         Journal journal=new Journal();
         journal.setUserID(Integer.valueOf(journalMap.get("userID")));
@@ -837,5 +870,8 @@ public class Mediator {
     }
     public static void updateUserLike(int userID,String likes) throws SQLException {
         UserManager.updateUserLike(userID,likes);
+    }
+    public static void updateUserSinaToken(int userID,String token,String time) throws SQLException {
+        UserManager.updateSinaToken(userID,token,time);
     }
 }

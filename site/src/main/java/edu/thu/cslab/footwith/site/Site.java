@@ -64,13 +64,15 @@ public class Site {
      * @param brief
      * @param picture
      */
-    public Site(int siteID, String siteName, int rate, String location, String brief, int picture) {
+    public Site(int siteID, String siteName, int rate, String location, String brief, int picture,int latitude,int longitude) {
         this.siteID = siteID;
         this.siteName = siteName;
         this.rate = rate;
         this.location = location;
         this.brief = brief;
         this.picture = picture;
+        this.latitude=latitude;
+        this.longitude=longitude;
     }
 
     public int getSiteID() {
@@ -95,6 +97,22 @@ public class Site {
 
     public int getPicture() {
         return picture;
+    }
+
+    public int getLatitude(){
+        return latitude;
+    }
+
+    public int getLongitude(){
+        return longitude;
+    }
+
+    public void setLatitude(int v){
+        this.latitude=v;
+    }
+
+    public void setLongitude(int v){
+        this.longitude=v;
     }
 
     public void setSiteID(int ID){
@@ -132,4 +150,6 @@ public class Site {
     private String location;
     private String brief;   // type text in sql database
     private int picture;
+    private int latitude;
+    private int longitude;
 }

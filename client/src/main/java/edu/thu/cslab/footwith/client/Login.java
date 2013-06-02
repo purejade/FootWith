@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Toast;
+import com.baidu.mapapi.BMapManager;
 import edu.thu.cslab.footwith.client.helper.Constant;
 import edu.thu.cslab.footwith.client.helper.ServerConnector;
 import edu.thu.cslab.footwith.messenger.JSONHelper;
@@ -38,7 +39,10 @@ public class Login extends Activity{
     static public String userRecords;
     static public HashMap<Integer,String> userLike=new HashMap<Integer, String>();
     static public String userMarks;
-	
+    static public String sinaWeiboToken;
+    static public String sinaExpiresIN;
+    static public BMapManager mBMapMan = null;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,6 +118,8 @@ public class Login extends Activity{
                         userRecords = userinfo.get("records");
                         userMarks = userinfo.get("marks");
                         userSex = userinfo.get("sex");
+                        sinaWeiboToken=userinfo.get("sinaWeiboToken");
+                        sinaExpiresIN=userinfo.get("sinaExpiresIN");
 
                         String like=userinfo.get("like_name");
                         if (!Util.isEmpty(like)){
@@ -127,6 +133,7 @@ public class Login extends Activity{
                                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                             }
                         }
+
 
                         Intent intent=new Intent();
                         intent.setClass(Login.this, FootWithActivity.class);
